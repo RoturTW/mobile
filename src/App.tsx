@@ -10,9 +10,6 @@ import styles from './styles.module.css';
 import { Post, Reply, Transaction } from './interfaces';
 import utils from './utils';
 
-const posts = claw.posts;
-const setPosts = claw.setPosts;
-
 const formatTimestamp = utils.formatTimestamp;
 
 // localStorage helper functions
@@ -40,7 +37,6 @@ const storage = {
   }
 };
 
-claw.connect();
 
 export default function App(): ReactElement {
   const [appState, setAppState] = useState<AppState>('loading');
@@ -390,6 +386,16 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
   const [, setLoadingMarriage] = useState<boolean>(false);
   const [viewingProfile, setViewingProfile] = useState<string | null>(null);
 
+  const [ posts, setPosts ] = useState<Post[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = claw.subscribe(setPosts);
+    claw.connect();
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   // Fetch limits from API
   useEffect(() => {
     const fetchLimits = async () => {
@@ -560,7 +566,6 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
 
       switch (viewType) {
         case 'feed':
-          setPosts(claw.posts);
           setSelectedPost(null);
           setSelectedProfile(null);
           setLoadingPosts(false);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+// No React hooks in this module. Provide a subscription-based store.
 
 let clawWs: WebSocket | null = null;
 let reconnectAttempts = 0;
@@ -16,8 +16,6 @@ function setAuth(token: string): void {
     auth = token;
 }
 
-const [posts, setPosts] = useState<Post[]>([]);
-
 async function getUser(username: string): Promise<any> {
     const data = users[username];
     if (!data) {
@@ -31,7 +29,31 @@ async function getUser(username: string): Promise<any> {
     return data;
 }
 
+let posts: Post[] = [];
+const subscribers: Array<(p: Post[]) => void> = [];
+
+function notify(): void {
+    for (const fn of subscribers) {
+        try { fn(posts); } catch { void 0; }
+    }
+}
+
+function subscribe(listener: (p: Post[]) => void): () => void {
+    subscribers.push(listener);
+    try { listener(posts); } catch { void 0; }
+    return () => {
+        const idx = subscribers.indexOf(listener);
+        if (idx >= 0) subscribers.splice(idx, 1);
+    };
+}
+
 function connect(): void {
+
+    const setPosts = (updater: Post[] | ((prev: Post[]) => Post[])): void => {
+        posts = typeof updater === 'function' ? (updater as (prev: Post[]) => Post[])(posts) : updater;
+        notify();
+    };
+
     if (clawWs && clawWs.readyState === WebSocket.OPEN) {
         clawWs.close();
     }
@@ -123,8 +145,8 @@ function connect(): void {
 }
 
 export default {
-    posts,
-    setPosts,
+    subscribe,
+    getPosts: (): Post[] => posts,
     allPosts,
     connect,
     setAuth,
