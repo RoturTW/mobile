@@ -636,10 +636,6 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
         setSuccess('Reply posted!');
         setReplyContent('');
         setTimeout(() => setSuccess(''), 3000);
-
-        const postResponse = await fetch(`https://api.rotur.dev/post?id=${selectedPost.id}`);
-        const updatedPost = await postResponse.json();
-        setSelectedPost(updatedPost);
       } else {
         setError('Failed to post reply');
       }
