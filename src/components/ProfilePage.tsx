@@ -344,56 +344,60 @@ const ProfilePage: FC<ProfilePageProps> = ({
               </div>
             )}
 
-            {!isOwnProfile && (
-              <div
-                className={`${styles.followButton} ${profile.followed ? styles.followingButton : ''}`}
-                onClick={handleFollowToggle}
-                style={{
-                  backgroundColor: profile.followed ? undefined : "#3b82f6"
-                }}
-              >
-                {profile.followed ? (
-                  <>
-                    <UserCheck size={16} color="#fff" />
-                    <span>Following</span>
-                  </>
-                ) : (
-                  <>
-                    <UserPlus size={16} color="#fff" />
-                    <span>Follow</span>
-                  </>
-                )}
-              </div>
-            )}
-            {!isOwnProfile && !isFriend && (
-              <div
-                className={appStyles.addButton}
-                onClick={async () => {
-                  if (!profile || sendingRequest) return;
-                  try {
-                    setError('');
-                    setRequestMessage('');
-                    setSendingRequest(true);
-                    const msg = await rotur.sendFriendRequest(token, profile.username);
-                    setRequestMessage(msg);
-                  } catch (err: any) {
-                    setError(err?.message || 'Failed to send friend request');
-                  } finally {
-                    setSendingRequest(false);
-                  }
-                }}
-                style={{ marginTop: 10, alignSelf: 'flex-start' }}
-              >
-                {sendingRequest ? (
-                  <span className={appStyles.buttonText}>Sending...</span>
-                ) : (
-                  <span className={appStyles.buttonText}><Handshake size={16} color="#fff" /> Send Friend Request</span>
-                )}
-              </div>
-            )}
-            {requestMessage && (
-              <div className={appStyles.successText} style={{ marginTop: 8 }}>{requestMessage}</div>
-            )}
+            <div style={{flex: 1, display: 'flex', justifyContent: 'flex-start', gap: 10}}>
+              {!isOwnProfile && (
+                <div
+                  className={`${styles.followButton} ${profile.followed ? styles.followingButton : ''}`}
+                  onClick={handleFollowToggle}
+                  style={{
+                    backgroundColor: profile.followed ? undefined : "#3b82f6"
+                  }}
+                >
+                  {profile.followed ? (
+                    <>
+                      <UserCheck size={16} color="#fff" />
+                      <span>Following</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus size={16} color="#fff" />
+                      <span>Follow</span>
+                    </>
+                  )}
+                </div>
+              )}
+              {!isOwnProfile && !isFriend && (
+                <div
+                  className={styles.followButton}
+                  onClick={async () => {
+                    if (!profile || sendingRequest) return;
+                    try {
+                      setError('');
+                      setRequestMessage('');
+                      setSendingRequest(true);
+                      const msg = await rotur.sendFriendRequest(token, profile.username);
+                      setRequestMessage(msg);
+                    } catch (err: any) {
+                      setError(err?.message || 'Failed to send friend request');
+                    } finally {
+                      setSendingRequest(false);
+                    }
+                  }}
+                  style={{
+                    backgroundColor: "#3b82f6"
+                  }}
+                >
+                  {sendingRequest ? (
+                    <span className={appStyles.buttonText}>Sending...</span>
+                  ) : (
+                    <span className={appStyles.buttonText}><Handshake size={16} color="#fff" /> Send Friend Request</span>
+                  )}
+                </div>
+              )}
+              {requestMessage && (
+                <div className={appStyles.successText} style={{ marginTop: 8 }}>{requestMessage}</div>
+              )}
+            </div>
           </div>
         </div>
 
