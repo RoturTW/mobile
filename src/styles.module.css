@@ -1,0 +1,1234 @@
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #000;
+}
+
+.loadingText {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #fff;
+}
+
+.mainContainer {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background-color: #000;
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.scrollView {
+  overflow-y: auto;
+}
+
+.viewContent {
+  padding: 20px;
+}
+
+.welcomeText {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.headerText {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.statusText {
+  font-size: 18px;
+  color: #4ade80;
+  margin-bottom: 10px;
+}
+
+.infoText {
+  font-size: 16px;
+  color: #9ca3af;
+}
+
+.backButtonAbs {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1;
+}
+
+.pageHeader {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  top: 20px;
+}
+
+.logoutButton {
+  margin-top: 30px;
+  background-color: #ef4444;
+  padding: 12px 30px;
+  border-radius: 8px;
+}
+
+.logoutText {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.tabBar {
+  display: flex;
+  flex-direction: row;
+  background-color: #1a1a1a;
+  border-top: 1px solid #333;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tab:hover {
+  background-color: #2a2a2a;
+}
+
+.activeTab {
+  border-top: 2px solid #3b82f6;
+}
+
+.tabIcon {
+  margin-bottom: 2px;
+}
+
+.topRightIcon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.friendsList {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.friendItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #1a1a1a;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.friendItem:hover {
+  background-color: #2a2a2a;
+}
+
+.friendAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  margin-right: 15px;
+}
+
+.friendName {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.settingsButtonContainer {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+}
+
+.settingsButton {
+  padding: 8px;
+}
+
+.input {
+  background-color: #333;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 20px;
+  border: none;
+}
+
+.addButton {
+  background-color: #3b82f6;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addButton:hover {
+  background-color: #2563eb;
+}
+
+.buttonText {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.errorText {
+  color: #ef4444;
+  margin-top: 10px;
+}
+
+.successText {
+  color: #4ade80;
+  margin-top: 10px;
+}
+
+.scrollContent {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.profileImage {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  margin-bottom: 10px;
+}
+
+.profileName {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.statsContainer {
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+}
+
+.statItem {
+  color: #4ade80;
+  font-size: 16px;
+  margin: 0 10px;
+}
+
+.bioContainer {
+  width: 100%;
+  position: relative;
+}
+
+.bioInput {
+  background-color: #1a1a1a;
+  color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  width: 100%;
+  min-height: 80px;
+  border: 1px solid #333;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.saveButton {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  background-color: #3b82f6;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.saveButton:hover {
+  background-color: #2563eb;
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.saveButtonText {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.feedContainer {
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+  padding-bottom: 60px;
+}
+
+.feedMainContent {
+  display: flex;
+  flex-direction: row;
+}
+
+.clawSidebar {
+  width: 60px;
+  min-width: 60px;
+  background-color: #0a0a0a;
+  padding-top: 20px;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarButton {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sidebarButton:hover {
+  background-color: #1a1a1a;
+}
+
+.sidebarButtonActive {
+  border-left: 3px solid #3b82f6;
+}
+
+.roturIcon {
+  font-size: 20px;
+  font-weight: bold;
+  color: #9ca3af;
+}
+
+.feedContentArea {
+
+}
+
+.feedHeaderText {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  padding: 20px;
+  padding-bottom: 10px;
+}
+
+.newPostContainer {
+  background-color: #1a1a1a;
+  padding: 15px;
+  margin: 0 15px 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.newPostInput {
+  color: #fff;
+  font-size: 16px;
+  min-height: 60px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.attachmentPreview {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  margin-top: 10px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.newPostFooter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.newPostActions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.attachmentButton {
+  background-color: #374151;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.attachmentButton:hover {
+  background-color: #4b5563;
+}
+
+.attachmentButtonText {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.charCount {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.postButton {
+  background-color: #3b82f6;
+  padding: 8px 20px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.postButton:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.postButtonDisabled {
+  background-color: #374151;
+  cursor: not-allowed;
+}
+
+.feedScrollView {
+  overflow-y: auto;
+}
+
+.postItem {
+  background-color: #1a1a1a;
+  padding: 15px;
+  margin: 0 15px 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.postItem:hover {
+  background-color: #252525;
+}
+
+.repostHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 6px;
+}
+
+.repostText {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.postHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.postAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.postUserInfo {
+  flex: 1;
+}
+
+.usernameRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.postUsername {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.postUsername:hover {
+  text-decoration: underline;
+}
+
+.premiumBadge {
+  background-color: #3b82f6;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.premiumBadgeText {
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.postMetadata {
+  color: #9ca3af;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.postTimestamp {
+  color: #9ca3af;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.postContent {
+  color: #fff;
+  font-size: 15px;
+  line-height: 20px;
+  margin-bottom: 10px;
+  word-break: break-all;
+}
+
+.postAttachment {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.postActions {
+  display: flex;
+  flex-direction: row;
+  margin-top: 5px;
+}
+
+.postAction {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.postAction:hover {
+  background-color: #2a2a2a;
+}
+
+.deleteAction {
+  margin-left: auto;
+}
+
+.postActionText {
+  color: #9ca3af;
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+.noPostsText {
+  color: #9ca3af;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.errorTextFeed {
+  color: #ef4444;
+  margin: 0 15px 10px 15px;
+  font-size: 14px;
+}
+
+.successTextFeed {
+  color: #4ade80;
+  margin: 0 15px 10px 15px;
+  font-size: 14px;
+}
+
+.profileHeader {
+  background-color: #1a1a1a;
+  padding: 15px;
+  margin: 0 15px 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profileHeaderAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  margin-bottom: 10px;
+}
+
+.profileHeaderName {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.profileHeaderBio {
+  font-size: 14px;
+  color: #9ca3af;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.profileFollowers {
+  font-size: 14px;
+  color: #4ade80;
+  margin-bottom: 10px;
+}
+
+.followButton {
+  background-color: #3b82f6;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.followButton:hover {
+  background-color: #2563eb;
+}
+
+.followingButton {
+  background-color: #374151;
+}
+
+.followButtonText {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.backButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover {
+  background-color: #1a1a1a;
+}
+
+.backButtonText {
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.postDetailHeader {
+  padding: 15px;
+  border-bottom: 1px solid #333;
+}
+
+.replyInputContainer {
+  background-color: #1a1a1a;
+  padding: 15px;
+  margin: 10px 15px 0 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.replyInput {
+  color: #fff;
+  font-size: 16px;
+  min-height: 60px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.replyInputFooter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.repliesContainer {
+  margin-top: 20px;
+}
+
+.repliesHeader {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  margin-left: 15px;
+  margin-bottom: 10px;
+}
+
+.premiumContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+  padding-bottom: 60px;
+}
+
+.premiumScroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.premiumTitle {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+
+.premiumSubtitle {
+  font-size: 18px;
+  color: #9ca3af;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.premiumFeatures {
+  padding: 0 40px;
+  margin-bottom: 30px;
+}
+
+.premiumFeature {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.premiumExampleContainer {
+  margin: 0 20px 30px 20px;
+}
+
+.premiumButton {
+  background-color: #3b82f6;
+  margin: 0 40px 15px 40px;
+  padding: 15px 0;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.premiumButton:hover {
+  background-color: #2563eb;
+}
+
+.premiumButtonText {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.premiumPrice {
+  font-size: 14px;
+  color: #9ca3af;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.premiumThanks {
+  font-size: 16px;
+  color: #4ade80;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.premiumBackButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0 40px 0;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.premiumBackButton:hover {
+  background-color: #1a1a1a;
+}
+
+.premiumBackText {
+  color: #3b82f6;
+  font-size: 16px;
+}
+
+.imageOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.imageOverlayContent {
+  width: 90%;
+  height: 80%;
+  object-fit: contain;
+}
+
+.marriageContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.marriageCard {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.marriageCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 12px;
+}
+
+.marriageAvatars {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.marriageAvatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+}
+
+.marriageAvatarSecond {
+  margin-left: -15px;
+  border-color: #3b82f6;
+}
+
+.marriageInfo {
+  flex: 1;
+}
+
+.marriageTitle {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.marriageStatus {
+  color: #a78bfa;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.marriageDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.marriageDetailRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.marriageDetailLabel {
+  color: #9ca3af;
+}
+
+.marriageDetailValue {
+  color: #fff;
+  font-weight: 500;
+}
+
+.marriageTimestamp {
+  color: #9ca3af;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.marriageActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.marriageActionButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.marriageActionButtonPrimary {
+  background-color: #9333ea;
+  color: #fff;
+}
+
+.marriageActionButtonPrimary:hover {
+  background-color: #7e22ce;
+}
+
+.marriageActionButtonDanger {
+  background-color: #de2b2b;
+  color: #fff;
+}
+
+.marriageActionButtonDanger:hover {
+  background-color: #dc2626;
+}
+
+.marriageActionButtonSecondary {
+  background-color: #374151;
+  color: #fff;
+}
+
+.marriageActionButtonSecondary:hover {
+  background-color: #4b5563;
+}
+
+.marriagePendingCard {
+  background-color: #1a1a1a;
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.marriagePendingTitle {
+  color: #fbbf24;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.marriageText {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.walletContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+  padding-bottom: 60px;
+}
+
+.walletHeader {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  padding: 20px;
+  padding-bottom: 10px;
+}
+
+.walletBalance {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.walletBalanceText {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 40px;
+  text-align: center;
+  width: 100%;
+}
+
+.walletGraph {
+  width: 100%;
+  height: 120px;
+  margin: 0 20px 20px 20px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background-color: #0a0a0a;
+}
+
+.homePageContainer {
+  margin-top: 20px;
+  flex: 1;
+}
+
+.spinner {
+  border: 3px solid #333;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 15px;
+}
+
+.metricCard {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.metricTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.metricValue {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.metricRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.metricInline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metricDeltaUp {
+  color: #4ade80;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metricDeltaDown {
+  color: #ef4444;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metricSubValue {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.contentWidth {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.friendActions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  align-items: center;
+}
+
+.segmentedControl {
+  display: inline-flex;
+  background-color: #0f0f0f;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 10px 0 15px 0;
+}
+
+.segmentedTab {
+  padding: 8px 14px;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.segmentedTabActive {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalCard {
+  width: 90%;
+  max-width: 520px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.modalTitle {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.modalInput {
+  width: 100%;
+  min-height: 80px;
+  background-color: #0f0f0f;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  padding: 12px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.modalActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bioFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
