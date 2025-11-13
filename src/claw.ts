@@ -1,8 +1,11 @@
+import { useState } from 'react';
+
 let clawWs: WebSocket | null = null;
 let reconnectAttempts = 0;
 let pingInterval: number | null = null;
 
-const posts: any[] = [];
+import { Post } from './interfaces';
+
 const allPosts: { [key: string]: any } = {};
 const users: { [key: string]: any } = {};
 let auth: string | null = null;
@@ -12,6 +15,8 @@ let reconnectTimeout: number | null = null;
 function setAuth(token: string): void {
     auth = token;
 }
+
+const [posts, setPosts] = useState<Post[]>([]);
 
 async function getUser(username: string): Promise<any> {
     const data = users[username];
@@ -59,17 +64,16 @@ function connect(): void {
                 break;
             case 'posts': {
                 const val = data.val;
-                posts.length = val.length;
+                setPosts(val);
                 for (let i = 0; i < val.length; i++) {
                     const post = val[i];
-                    posts[i] = post;
                     allPosts[post.id] = post;
                 }
                 break;
             }
             case 'new_post': {
                 const id = data.val.id;
-                posts.push(data.val);
+                setPosts(prevPosts => [...prevPosts, data.val]);
                 allPosts[id] = data.val;
                 break;
             }
@@ -78,17 +82,13 @@ function connect(): void {
                 const key = String(data.val.key);
                 const post = allPosts[id];
                 post[key] = data.val.data;
+                setPosts(prevPosts => prevPosts.map(p => p.id === id ? post : p));
                 break;
             }
             case 'delete_post': {
                 const id = data.val.id;
                 delete allPosts[id];
-                for (let i = 0; i < posts.length; i++) {
-                    if (posts[i].id === id) {
-                        posts.splice(i, 1);
-                        break;
-                    }
-                }
+                setPosts(prevPosts => prevPosts.filter(p => p.id !== id));
                 break;
             }
             case 'followers': {
@@ -124,6 +124,7 @@ function connect(): void {
 
 export default {
     posts,
+    setPosts,
     allPosts,
     connect,
     setAuth,

@@ -10,6 +10,9 @@ import styles from './styles.module.css';
 import { Post, Reply, Transaction } from './interfaces';
 import utils from './utils';
 
+const posts = claw.posts;
+const setPosts = claw.setPosts;
+
 const formatTimestamp = utils.formatTimestamp;
 
 // localStorage helper functions
@@ -355,7 +358,6 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
 
   // Claw feed state
   const [clawView, setClawView] = useState<ClawView>('feed');
-  const [posts, setPosts] = useState<Post[]>([]);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [newPostContent, setNewPostContent] = useState<string>('');
   const [postingContent, setPostingContent] = useState<boolean>(false);
@@ -665,10 +667,10 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
         handleProfilePress(actor);
         break;
       case 'reply':
-        handlePostPress(claw.posts.find(p => p.id === n.post_id));
+        handlePostPress(claw.allPosts[n.post_id] || {});
         break;
       case 'repost':
-        handlePostPress(claw.posts.find(p => p.id === n.post_id));
+        handlePostPress(claw.allPosts[n.post_id] || {});
         break;
       default:
         break;
