@@ -322,9 +322,11 @@ const ClawSidebar: FC<ClawSidebarProps> = ({ currentView, onViewChange, orientat
 };
 
 const MemoizedPostItem = React.memo(PostItem, (prevProps, nextProps) => {
+  const prevLen = (prevProps.post.original_post ? prevProps.post.original_post.likes?.length : prevProps.post.likes?.length) || 0;
+  const nextLen = (nextProps.post.original_post ? nextProps.post.original_post.likes?.length : nextProps.post.likes?.length) || 0;
   return (
     prevProps.post.id === nextProps.post.id &&
-    prevProps.post.likes?.length === nextProps.post.likes?.length &&
+    prevLen === nextLen &&
     prevProps.currentUsername === nextProps.currentUsername
   );
 });
@@ -772,6 +774,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
       onLike={handleLikePost}
       onRepost={handleRepost}
       onDelete={handleDeletePost}
+      friends={friends}
     />
   ), [username, token, handlePostPress, handleProfilePress, handleLikePost, handleRepost, handleDeletePost]);
 

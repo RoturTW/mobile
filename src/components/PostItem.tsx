@@ -16,6 +16,7 @@ interface PostItemProps {
   onRepost: (postId: string) => void;
   onDelete: (postId: string) => void;
   isReply?: boolean;
+  friends?: string[];
 }
 
 const PostItem: FC<PostItemProps> = ({ 
@@ -26,7 +27,8 @@ const PostItem: FC<PostItemProps> = ({
   onLike,
   onRepost,
   onDelete,
-  isReply = false
+  isReply = false,
+  friends = []
 }) => {
   const isRepost = post.original_post !== undefined;
   const displayPost = isRepost ? post.original_post || post : post
@@ -36,6 +38,15 @@ const PostItem: FC<PostItemProps> = ({
   const likeCount = displayPost.likes?.length || 0;
   const replyCount = displayPost.replies?.length || 0;
   const isMyPost = displayPost.user.toLowerCase() === currentUsername.toLowerCase();
+
+  const friendLike = (() => {
+    const likes = (displayPost.likes || []).map(u => String(u).toLowerCase());
+    for (let i = 0; i < friends.length; i++) {
+      const f = String(friends[i] || '').toLowerCase();
+      if (likes.includes(f)) return friends[i];
+    }
+    return '';
+  })();
 
   const [imageError, setImageError] = useState(false);
 
@@ -79,6 +90,12 @@ const PostItem: FC<PostItemProps> = ({
       </div>
       
       <div className={styles.postContent}>{displayPost.content}</div>
+
+      {friendLike && !isReply && (
+        <div className={styles.postMetadata}>
+          {friendLike} liked this post
+        </div>
+      )}
       
       {displayPost.attachment && !imageError && (
         <div>
@@ -97,13 +114,13 @@ const PostItem: FC<PostItemProps> = ({
             className={styles.postAction}
             onClick={(e) => { e.stopPropagation(); onLike(displayPost.id, isLiked); }}
           >
-            <Heart 
-              size={18} 
-              color={isLiked ? '#ef4444' : '#9ca3af'} 
-              fill={isLiked ? '#ef4444' : 'none'} 
-            />
-            {likeCount > 0 && <span className={styles.postActionText}>{likeCount}</span>}
-          </div>
+          <Heart 
+            size={18} 
+            color={isLiked ? '#ef4444' : '#9ca3af'} 
+            fill={isLiked ? '#ef4444' : 'none'} 
+          />
+          {likeCount > 0 && <span className={styles.postActionText}>{likeCount}</span>}
+        </div>
           
           <div className={styles.postAction}>
             <MessageCircle size={18} color="#9ca3af" />
@@ -134,4 +151,3 @@ const PostItem: FC<PostItemProps> = ({
 };
 
 export default PostItem;
-
