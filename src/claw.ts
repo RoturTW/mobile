@@ -47,6 +47,45 @@ function subscribe(listener: (p: Post[]) => void): () => void {
     };
 }
 
+function getSnapshot(): Post[] {
+    return posts;
+}
+
+function mutatePosts(updater: Post[] | ((prev: Post[]) => Post[])): void {
+    posts = typeof updater === 'function' ? (updater as (prev: Post[]) => Post[])(posts) : updater;
+    notify();
+}
+
+function replaceFeed(next: Post[]): void {
+    posts = next;
+    for (let i = 0; i < next.length; i++) {
+        const p = next[i];
+        allPosts[p.id] = p;
+    }
+    notify();
+}
+
+function likePostOptimistic(postId: string, username: string, isLiked: boolean): void {
+    const cur = allPosts[postId];
+    if (!cur) return;
+    const nextLikes = Array.isArray(cur.likes) ? cur.likes.slice() : [];
+    const uname = (username || '').toLowerCase();
+    if (isLiked) {
+        for (let i = nextLikes.length - 1; i >= 0; i--) {
+            if (nextLikes[i] === uname) nextLikes.splice(i, 1);
+        }
+    } else {
+        nextLikes.push(uname);
+    }
+    cur.likes = nextLikes;
+    mutatePosts(prev => prev.map(p => (p.id === postId ? cur : p)));
+}
+
+function deletePostOptimistic(postId: string): void {
+    delete allPosts[postId];
+    mutatePosts(prev => prev.filter(p => p.id !== postId));
+}
+
 function connect(): void {
 
     const setPosts = (updater: Post[] | ((prev: Post[]) => Post[])): void => {
@@ -147,9 +186,13 @@ function connect(): void {
 export default {
     subscribe,
     getPosts: (): Post[] => posts,
+    getSnapshot,
+    mutatePosts,
+    replaceFeed,
+    likePostOptimistic,
+    deletePostOptimistic,
     allPosts,
     connect,
     setAuth,
     getUser,
 };
-

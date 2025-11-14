@@ -17,7 +17,7 @@
   display: flex;
   min-height: 100vh;
   flex-direction: column;
-  background-color: #000;
+  background-color: var(--bg);
 }
 
 .contentContainer {
@@ -88,8 +88,8 @@
 .tabBar {
   display: flex;
   flex-direction: row;
-  background-color: #1a1a1a;
-  border-top: 1px solid #333;
+  background-color: var(--surface-2);
+  border-top: 1px solid var(--border);
   position: fixed;
   bottom: 0;
   left: 0;
@@ -113,7 +113,7 @@
 }
 
 .activeTab {
-  border-top: 2px solid #3b82f6;
+  border-top: 2px solid var(--primary);
 }
 
 .tabIcon {
@@ -121,7 +121,7 @@
 }
 
 .addButton {
-  background-color: #3b82f6;
+  background-color: var(--primary);
   padding: 15px;
   border-radius: 8px;
   text-align: center;
@@ -130,7 +130,7 @@
 }
 
 .addButton:hover {
-  background-color: #2563eb;
+  background-color: var(--primary-hover);
 }
 
 .topRightIcon {
@@ -186,8 +186,8 @@
 }
 
 .input {
-  background-color: #333;
-  color: #fff;
+  background-color: var(--border);
+  color: var(--text);
   padding: 12px;
   border-radius: 8px;
   width: 100%;
@@ -202,12 +202,12 @@
 }
 
 .errorText {
-  color: #ef4444;
+  color: var(--danger);
   margin-top: 10px;
 }
 
 .successText {
-  color: #4ade80;
+  color: var(--success);
   margin-top: 10px;
 }
 
@@ -297,7 +297,7 @@
 .feedContainer {
   display: flex;
   flex-direction: column;
-  background-color: #000;
+  background-color: var(--bg);
   padding-bottom: 60px;
 }
 
@@ -306,12 +306,17 @@
   flex-direction: row;
 }
 
+@media (max-width: 767px) {
+  .feedMainContent { flex-direction: column; }
+  .feedContentArea { max-width: 100%; }
+}
+
 .clawSidebar {
   width: 60px;
   min-width: 60px;
-  background-color: #0a0a0a;
+  background-color: var(--surface);
   padding-top: 20px;
-  border-right: 1px solid #333;
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
 }
@@ -331,7 +336,11 @@
 }
 
 .sidebarButtonActive {
-  border-left: 3px solid #3b82f6;
+  border-left: 3px solid var(--primary);
+}
+
+.clawBottomActive {
+  border-top: 3px solid var(--primary);
 }
 
 .roturIcon {
@@ -341,27 +350,50 @@
 }
 
 .feedContentArea {
+  flex: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
 
+.clawBottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: 56px;
+  z-index: 90;
+}
+
+@media (max-width: 767px) {
+  .clawBottomBar { display: none; }
 }
 
 .feedHeaderText {
   font-size: 24px;
   font-weight: bold;
-  color: #fff;
+  color: var(--text);
   padding: 20px;
   padding-bottom: 10px;
 }
 
 .newPostContainer {
-  background-color: #1a1a1a;
+  background-color: var(--surface-2);
   padding: 15px;
   margin: 0 15px 10px 15px;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border);
 }
 
 .newPostInput {
-  color: #fff;
+  color: var(--text);
   font-size: 16px;
   min-height: 60px;
   width: 100%;
@@ -408,17 +440,17 @@
 }
 
 .attachmentButtonText {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 12px;
 }
 
 .charCount {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 12px;
 }
 
 .postButton {
-  background-color: #3b82f6;
+  background-color: var(--primary);
   padding: 8px 20px;
   border-radius: 6px;
   display: flex;
@@ -430,7 +462,7 @@
 }
 
 .postButton:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--primary-hover);
 }
 
 .postButtonDisabled {
@@ -443,11 +475,11 @@
 }
 
 .postItem {
-  background-color: #1a1a1a;
+  background-color: var(--surface-2);
   padding: 15px;
   margin: 0 15px 10px 15px;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border);
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -465,7 +497,7 @@
 }
 
 .repostText {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -496,7 +528,7 @@
 }
 
 .postUsername {
-  color: #fff;
+  color: var(--text);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -507,7 +539,7 @@
 }
 
 .premiumBadge {
-  background-color: #3b82f6;
+  background-color: var(--primary);
   width: 18px;
   height: 18px;
   border-radius: 9px;
@@ -517,25 +549,25 @@
 }
 
 .premiumBadgeText {
-  color: #fff;
+  color: var(--text);
   font-size: 10px;
   font-weight: bold;
 }
 
 .postMetadata {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 12px;
   margin-top: 2px;
 }
 
 .postTimestamp {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 12px;
   margin-top: 2px;
 }
 
 .postContent {
-  color: #fff;
+  color: var(--text);
   font-size: 15px;
   line-height: 20px;
   margin-bottom: 10px;
@@ -577,26 +609,26 @@
 }
 
 .postActionText {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 14px;
   margin-left: 5px;
 }
 
 .noPostsText {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 16px;
   text-align: center;
   margin-top: 40px;
 }
 
 .errorTextFeed {
-  color: #ef4444;
+  color: var(--danger);
   margin: 0 15px 10px 15px;
   font-size: 14px;
 }
 
 .successTextFeed {
-  color: #4ade80;
+  color: var(--success);
   margin: 0 15px 10px 15px;
   font-size: 14px;
 }
@@ -622,25 +654,25 @@
 .profileHeaderName {
   font-size: 20px;
   font-weight: bold;
-  color: #fff;
+  color: var(--text);
   margin-bottom: 5px;
 }
 
 .profileHeaderBio {
   font-size: 14px;
-  color: #9ca3af;
+  color: var(--muted);
   text-align: center;
   margin-bottom: 10px;
 }
 
 .profileFollowers {
   font-size: 14px;
-  color: #4ade80;
+  color: var(--success);
   margin-bottom: 10px;
 }
 
 .followButton {
-  background-color: #3b82f6;
+  background-color: var(--primary);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -652,7 +684,7 @@
 }
 
 .followButton:hover {
-  background-color: #2563eb;
+  background-color: var(--primary-hover);
 }
 
 .followingButton {
@@ -700,7 +732,7 @@
 }
 
 .replyInput {
-  color: #fff;
+  color: var(--text);
   font-size: 16px;
   min-height: 60px;
   width: 100%;
@@ -725,7 +757,7 @@
 .repliesHeader {
   font-size: 18px;
   font-weight: bold;
-  color: #fff;
+  color: var(--text);
   margin-left: 15px;
   margin-bottom: 10px;
 }
@@ -734,7 +766,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #000;
+  background-color: var(--bg);
   padding-bottom: 60px;
 }
 
@@ -746,7 +778,7 @@
 .premiumTitle {
   font-size: 28px;
   font-weight: bold;
-  color: #fff;
+  color: var(--text);
   text-align: center;
   margin-top: 40px;
   margin-bottom: 10px;
@@ -754,7 +786,7 @@
 
 .premiumSubtitle {
   font-size: 18px;
-  color: #9ca3af;
+  color: var(--muted);
   text-align: center;
   margin-bottom: 30px;
 }
@@ -766,7 +798,7 @@
 
 .premiumFeature {
   font-size: 16px;
-  color: #fff;
+  color: var(--text);
   margin-bottom: 15px;
 }
 
@@ -775,7 +807,7 @@
 }
 
 .premiumButton {
-  background-color: #3b82f6;
+  background-color: var(--primary);
   margin: 0 40px 15px 40px;
   padding: 15px 0;
   border-radius: 8px;
@@ -785,25 +817,25 @@
 }
 
 .premiumButton:hover {
-  background-color: #2563eb;
+  background-color: var(--primary-hover);
 }
 
 .premiumButtonText {
-  color: #fff;
+  color: var(--text);
   font-size: 16px;
   font-weight: 600;
 }
 
 .premiumPrice {
   font-size: 14px;
-  color: #9ca3af;
+  color: var(--muted);
   text-align: center;
   margin-bottom: 20px;
 }
 
 .premiumThanks {
   font-size: 16px;
-  color: #4ade80;
+  color: var(--success);
   text-align: center;
   margin-bottom: 20px;
 }
@@ -822,11 +854,11 @@
 }
 
 .premiumBackButton:hover {
-  background-color: #1a1a1a;
+  background-color: var(--surface-2);
 }
 
 .premiumBackText {
-  color: #3b82f6;
+  color: var(--primary);
   font-size: 16px;
 }
 
@@ -859,7 +891,7 @@
 }
 
 .marriageCard {
-  background: #1a1a1a;
+  background: var(--surface-2);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 15px;
@@ -889,7 +921,7 @@
 
 .marriageAvatarSecond {
   margin-left: -15px;
-  border-color: #3b82f6;
+  border-color: var(--primary);
 }
 
 .marriageInfo {
@@ -897,7 +929,7 @@
 }
 
 .marriageTitle {
-  color: #fff;
+  color: var(--text);
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 4px;
@@ -927,16 +959,16 @@
 }
 
 .marriageDetailLabel {
-  color: #9ca3af;
+  color: var(--muted);
 }
 
 .marriageDetailValue {
-  color: #fff;
+  color: var(--text);
   font-weight: 500;
 }
 
 .marriageTimestamp {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 12px;
   margin-top: 8px;
 }
@@ -962,7 +994,7 @@
 }
 
 .marriageActionButtonPrimary {
-  background-color: #9333ea;
+  background-color: var(--accent);
   color: #fff;
 }
 
@@ -989,7 +1021,7 @@
 }
 
 .marriagePendingCard {
-  background-color: #1a1a1a;
+  background-color: var(--surface-2);
   border: 2px solid #fbbf24;
   border-radius: 12px;
   padding: 20px;
@@ -1008,7 +1040,7 @@
 }
 
 .marriageText {
-  color: #fff;
+  color: var(--text);
   font-size: 16px;
   font-weight: 600;
 }
@@ -1017,7 +1049,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #000;
+  background-color: var(--bg);
   padding-bottom: 60px;
 }
 
@@ -1050,19 +1082,22 @@
   width: 100%;
   height: 120px;
   margin: 0 20px 20px 20px;
-  border: 1px solid #333;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background-color: #0a0a0a;
+  background-color: var(--surface);
 }
 
 .homePageContainer {
   margin-top: 20px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .spinner {
-  border: 3px solid #333;
-  border-top: 3px solid #3b82f6;
+  border: 3px solid var(--border);
+  border-top: 3px solid var(--primary);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -1082,8 +1117,8 @@
 }
 
 .metricCard {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 16px;
 }
@@ -1092,13 +1127,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 600;
 }
 
 .metricValue {
-  color: #fff;
+  color: var(--text);
   font-size: 22px;
   font-weight: 700;
   margin-top: 6px;
@@ -1118,7 +1153,7 @@
 }
 
 .metricDeltaUp {
-  color: #4ade80;
+  color: var(--success);
   font-size: 13px;
   display: flex;
   align-items: center;
@@ -1126,7 +1161,7 @@
 }
 
 .metricDeltaDown {
-  color: #ef4444;
+  color: var(--danger);
   font-size: 13px;
   display: flex;
   align-items: center;
@@ -1134,13 +1169,13 @@
 }
 
 .metricSubValue {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 12px;
 }
 
 .contentWidth {
   width: 100%;
-  max-width: 720px;
+  max-width: 680px;
   margin: 0 auto;
 }
 
@@ -1149,6 +1184,57 @@
   gap: 8px;
   margin-left: auto;
   align-items: center;
+}
+
+.desktopLayout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+.desktopSidebar {
+  width: 200px;
+  min-width: 200px;
+  background-color: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 12px 8px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.desktopSidebarItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.desktopSidebarItem:hover {
+  background-color: var(--surface-2);
+}
+
+.desktopSidebarItemActive {
+  background-color: var(--surface-2);
+  outline: 2px solid var(--primary);
+}
+
+.desktopSidebarLabel {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.desktopContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .tabBar { display: none; }
 }
 
 .segmentedControl {
@@ -1232,4 +1318,3 @@
   justify-content: space-between;
   margin-top: 8px;
 }
-

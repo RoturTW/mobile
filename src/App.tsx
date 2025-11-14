@@ -1,7 +1,8 @@
-import React, { useState, useEffect, FC, ReactElement, useCallback, useRef } from 'react';
+import React, { useState, useEffect, FC, ReactElement, useCallback, useRef, useSyncExternalStore } from 'react';
 import rotur from './rotur';
 import claw from './claw';
 import TabBar, { TabName } from './components/TabBar';
+import Sidebar from './components/Sidebar';
 import PostItem from './components/PostItem';
 import LoadingScreen from './components/LoadingScreen';
 import ProfilePage from './components/ProfilePage';
@@ -9,6 +10,7 @@ import { LogOut, MessageSquare, Plus, ChevronLeft, Send, ArrowLeft, Star, Trendi
 import styles from './styles.module.css';
 import { Post, Reply, Transaction } from './interfaces';
 import utils from './utils';
+import useViewport from './hooks/useViewport';
 
 const formatTimestamp = utils.formatTimestamp;
 
@@ -193,7 +195,7 @@ const AuthScreen: FC<AuthScreenProps> = ({ onAuthComplete }) => {
 
       try {
         let data: AuthMessage;
-        
+
         if (typeof event.data === 'string') {
           data = JSON.parse(event.data);
         } else {
@@ -204,7 +206,7 @@ const AuthScreen: FC<AuthScreenProps> = ({ onAuthComplete }) => {
           console.log('Auth token received');
           const token = data.token;
           const username = data.username || 'user';
-          
+
           storage.setItem('rotur_auth_token', token);
           storage.setItem('rotur_username', username);
           onAuthComplete(token, username);
@@ -280,34 +282,37 @@ interface ClawSidebarProps {
   onViewChange: (view: ClawView) => void;
   username: string;
   onProfilePress: (username: string) => void;
+  orientation?: 'vertical' | 'horizontal';
 }
 
-const ClawSidebar: FC<ClawSidebarProps> = ({ currentView, onViewChange }) => {
+const ClawSidebar: FC<ClawSidebarProps> = ({ currentView, onViewChange, orientation = 'vertical' }) => {
+  const wrapperClass = orientation === 'horizontal' ? styles.clawBottomBar : styles.clawSidebar;
+  const activeClass = orientation === 'horizontal' ? styles.clawBottomActive : styles.sidebarButtonActive;
   return (
-    <div className={styles.clawSidebar}>
+    <div className={wrapperClass}>
       <div
-        className={`${styles.sidebarButton} ${currentView === 'feed' ? styles.sidebarButtonActive : ''}`}
+        className={`${styles.sidebarButton} ${currentView === 'feed' ? activeClass : ''}`}
         onClick={() => onViewChange('feed')}
       >
         <MessageSquare size={20} color={currentView === 'feed' ? '#3b82f6' : '#9ca3af'} />
       </div>
 
       <div
-        className={`${styles.sidebarButton} ${currentView === 'following' ? styles.sidebarButtonActive : ''}`}
+        className={`${styles.sidebarButton} ${currentView === 'following' ? activeClass : ''}`}
         onClick={() => onViewChange('following')}
       >
         <Star size={20} color={currentView === 'following' ? '#3b82f6' : '#9ca3af'} />
       </div>
 
       <div
-        className={`${styles.sidebarButton} ${currentView === 'top' ? styles.sidebarButtonActive : ''}`}
+        className={`${styles.sidebarButton} ${currentView === 'top' ? activeClass : ''}`}
         onClick={() => onViewChange('top')}
       >
         <TrendingUp size={20} color={currentView === 'top' ? '#3b82f6' : '#9ca3af'} />
       </div>
 
       <div
-        className={`${styles.sidebarButton} ${currentView === 'premium' ? styles.sidebarButtonActive : ''}`}
+        className={`${styles.sidebarButton} ${currentView === 'premium' ? activeClass : ''}`}
         onClick={() => onViewChange('premium')}
       >
         <span className={styles.roturIcon}>R</span>
@@ -386,14 +391,10 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
   const [, setLoadingMarriage] = useState<boolean>(false);
   const [viewingProfile, setViewingProfile] = useState<string | null>(null);
 
-  const [ posts, setPosts ] = useState<Post[]>([]);
+  const posts = useSyncExternalStore(claw.subscribe, claw.getSnapshot);
 
   useEffect(() => {
-    const unsubscribe = claw.subscribe(setPosts);
     claw.connect();
-    return () => {
-      unsubscribe();
-    };
   }, []);
 
   // Fetch limits from API
@@ -416,7 +417,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
     fetchLimits();
   }, []);
 
-  const maxPostLength = limits 
+  const maxPostLength = limits
     ? (isPremium ? limits.content_length_premium : limits.content_length)
     : (isPremium ? 600 : 300);
 
@@ -582,7 +583,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
 
       const response = await fetch(url);
       const data: Post[] = await response.json();
-      setPosts(data);
+      claw.replaceFeed(data);
       setSelectedPost(null);
       setSelectedProfile(null);
     } catch (err) {
@@ -687,14 +688,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
       const rating = isLiked ? 0 : 1;
       await fetch(`https://api.rotur.dev/rate?auth=${token}&id=${postId}&rating=${rating}`);
 
-      setPosts(prevPosts => prevPosts.map(p =>
-        p.id === postId ? {
-          ...p,
-          likes: isLiked
-            ? (p.likes || []).filter(u => u !== user?.username.toLowerCase())
-            : [...(p.likes || []), user?.username.toLowerCase() || '']
-        } : p
-      ));
+      claw.likePostOptimistic(postId, user?.username.toLowerCase() || '', isLiked);
     } catch (err) {
       console.error('Like error:', err);
     }
@@ -716,7 +710,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
       await fetch(`https://api.rotur.dev/delete?auth=${token}&id=${postId}`);
       setSuccess('Post deleted!');
       setTimeout(() => setSuccess(''), 3000);
-      setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
+      claw.deletePostOptimistic(postId);
       if (selectedPost?.id === postId) {
         setSelectedPost(null);
       }
@@ -754,8 +748,13 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
 
     return (
       <div key={idx} className={styles.postItem} onClick={() => handleNotificationPress(n)}>
-        <div className={styles.postUsername}>
-          {icon} {message}
+        <div className={styles.postHeader}>
+          {actor && (
+            <img src={`https://avatars.rotur.dev/${actor}`} alt={actor} className={styles.postAvatar} />
+          )}
+          <div className={styles.postUsername}>
+            {icon} {message}
+          </div>
         </div>
         <div className={styles.postTimestamp}>{formatTimestamp(ts)}</div>
       </div>
@@ -782,7 +781,6 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
     try {
       const data: ProfileData = await claw.getUser(username);
       setSelectedProfile(data);
-      setPosts(data.posts || []);
       setSelectedPost(null);
     } catch (err) {
       console.error('Failed to load profile:', err);
@@ -791,9 +789,6 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
       setLoadingPosts(false);
     }
   };
-
-  // Follow/Unfollow
-//
 
   // Premium subscribe/unsubscribe
   const handlePremiumToggle = async (): Promise<void> => {
@@ -857,7 +852,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
 
   useEffect(() => {
     const loadMetrics = async (): Promise<void> => {
-      
+
       try {
         const profile = await claw.getUser(username);
         setFollowersCount(Number(profile?.followers || 0));
@@ -953,20 +948,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
   }, [token]);
 
   // Marriage action handlers
-  const handleProposeMarriage = async (username: string): Promise<void> => {
-    try {
-      setError('');
-      await rotur.proposeMarriage(token, username);
-      setSuccess('Marriage proposal sent!');
-      setTimeout(() => setSuccess(''), 3000);
-      // Refresh marriage status
-      const status = await rotur.getMarriageStatus(token);
-      setMarriageStatus(status);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to propose marriage');
-      setTimeout(() => setError(''), 3000);
-    }
-  };
+  // Removed propose action from Friends tab per request
 
   const handleAcceptMarriage = async (): Promise<void> => {
     try {
@@ -1063,197 +1045,197 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
       );
     }
 
-  if (page !== "None") {
-    switch (page) {
-      case 'Add Friend':
-        return (
-          <div className={styles.viewContent}>
-            <div className={styles.backButtonAbs} onClick={onBackPress}>
-              <ChevronLeft size={24} color="#9ca3af" />
-            </div>
-            <div className={styles.pageHeader}>Add Friend</div>
-            <input
-              className={styles.input}
-              type="text"
-              placeholder="Enter username"
-              value={usernameToRequest}
-              onChange={(e) => setUsernameToRequest(e.target.value)}
-            />
-            <div className={styles.addButton} onClick={handleSendRequest}>
-              <span className={styles.buttonText}>Send Request</span>
-            </div>
-            {error && <div className={styles.errorText}>{error}</div>}
-            {success && <div className={styles.successText}>{success}</div>}
-          </div>
-        );
-      case 'Manage Friendships':
-        return (
-          <div className={styles.viewContent}>
-            <div className={styles.backButtonAbs} onClick={onBackPress}>
-              <ChevronLeft size={24} color="#9ca3af" />
-            </div>
-            <div className={styles.pageHeader}>Manage Friendships</div>
-            {error && <div className={styles.errorText}>{error}</div>}
-            {success && <div className={styles.successText}>{success}</div>}
-
-            {requests.length > 0 && (
-              <div style={{ width: '100%', marginTop: '10px' }}>
-                <div className={styles.headerText} style={{ fontSize: '18px' }}>Requests</div>
-                {requests.map((u) => (
-                  <div key={u} className={styles.friendItem}>
-                    <img src={`https://avatars.rotur.dev/${u}`} alt={u} className={styles.friendAvatar} />
-                    <div className={styles.friendName} style={{ flex: 1 }}>{u}</div>
-                    <div className={styles.marriageActions} style={{ margin: 0 }}>
-                      <div className={styles.marriageActionButton + ' ' + styles.marriageActionButtonPrimary} onClick={() => handleAcceptRequest(u)}>
-                        <Check size={14} /> Accept
-                      </div>
-                      <div className={styles.marriageActionButton + ' ' + styles.marriageActionButtonDanger} onClick={() => handleRejectRequest(u)}>
-                        <X size={14} /> Reject
-                      </div>
-                    </div>
-                  </div>
-                ))}
+    if (page !== "None") {
+      switch (page) {
+        case 'Add Friend':
+          return (
+            <div className={styles.viewContent}>
+              <div className={styles.backButtonAbs} onClick={onBackPress}>
+                <ChevronLeft size={24} color="#9ca3af" />
               </div>
-            )}
+              <div className={styles.pageHeader}>Add Friend</div>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Enter username"
+                value={usernameToRequest}
+                onChange={(e) => setUsernameToRequest(e.target.value)}
+              />
+              <div className={styles.addButton} onClick={handleSendRequest}>
+                <span className={styles.buttonText}>Send Request</span>
+              </div>
+              {error && <div className={styles.errorText}>{error}</div>}
+              {success && <div className={styles.successText}>{success}</div>}
+            </div>
+          );
+        case 'Manage Friendships':
+          return (
+            <div className={styles.viewContent}>
+              <div className={styles.backButtonAbs} onClick={onBackPress}>
+                <ChevronLeft size={24} color="#9ca3af" />
+              </div>
+              <div className={styles.pageHeader}>Manage Friendships</div>
+              {error && <div className={styles.errorText}>{error}</div>}
+              {success && <div className={styles.successText}>{success}</div>}
 
-            <div style={{ width: '100%', marginTop: '20px' }}>
-              <div className={styles.headerText} style={{ fontSize: '18px' }}>Friends</div>
-              {friends
-                .filter(f => f.toLowerCase().includes(friendsQuery.trim().toLowerCase()))
-                .sort((a, b) => a.localeCompare(b))
-                .map((f) => (
-                  <div key={f} className={styles.friendItem}>
-                    <img src={`https://avatars.rotur.dev/${f}`} alt={f} className={styles.friendAvatar} />
-                    <div className={styles.friendName} style={{ flex: 1 }}>{f}</div>
-                    <div className={styles.marriageActionButton + ' ' + styles.marriageActionButtonDanger} onClick={() => handleRemoveFriend(f)}>
-                      <X size={14} /> Remove
+              {requests.length > 0 && (
+                <div style={{ width: '100%', marginTop: '10px' }}>
+                  <div className={styles.headerText} style={{ fontSize: '18px' }}>Requests</div>
+                  {requests.map((u) => (
+                    <div key={u} className={styles.friendItem}>
+                      <img src={`https://avatars.rotur.dev/${u}`} alt={u} className={styles.friendAvatar} />
+                      <div className={styles.friendName} style={{ flex: 1 }}>{u}</div>
+                      <div className={styles.marriageActions} style={{ margin: 0 }}>
+                        <div className={styles.marriageActionButton + ' ' + styles.marriageActionButtonPrimary} onClick={() => handleAcceptRequest(u)}>
+                          <Check size={14} /> Accept
+                        </div>
+                        <div className={styles.marriageActionButton + ' ' + styles.marriageActionButtonDanger} onClick={() => handleRejectRequest(u)}>
+                          <X size={14} /> Reject
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              {friends.length === 0 && (
-                <div className={styles.infoText}>No friends yet</div>
-              )}
-            </div>
-
-            <div className={styles.addButton} onClick={() => setPage('Blocking')} style={{ marginTop: '10px', width: '100%' }}>
-              <span className={styles.buttonText}>Manage Blocking</span>
-            </div>
-          </div>
-        );
-      case 'Transfer':
-        return (
-          <div className={styles.viewContent}>
-            <div className={styles.backButtonAbs} onClick={onBackPress}>
-              <ChevronLeft size={24} color="#9ca3af" />
-            </div>
-            <div className={styles.pageHeader}>Transfer</div>
-            <input
-              className={styles.input}
-              type="text"
-              placeholder="Enter Rotur username"
-              value={transferTo}
-              onChange={(e) => setTransferTo(e.target.value)}
-            />
-            <input
-              className={styles.input}
-              type="number"
-              placeholder="Amount (credits)"
-              value={transferAmount}
-              onChange={(e) => setTransferAmount(e.target.value)}
-              min={0.01}
-              step={0.01}
-            />
-            <div className={styles.infoText}>Rotur charges a 1 credit tax per transaction</div>
-            <div
-              className={styles.addButton}
-              onClick={async () => {
-                if (sendingTransfer) return;
-                const to = transferTo.trim();
-                const amt = parseFloat(transferAmount);
-                if (!to) {
-                  setError('Recipient username is required');
-                  return;
-                }
-                if (to.toLowerCase() === (user?.username || '').toLowerCase()) {
-                  setError('Cannot send to yourself');
-                  return;
-                }
-                if (isNaN(amt) || amt < 0.01) {
-                  setError('Amount must be at least 0.01');
-                  return;
-                }
-                setError('');
-                setSuccess('');
-                setSendingTransfer(true);
-                try {
-                  const res = await fetch(`https://api.rotur.dev/me/transfer?auth=${token}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ To: to, Amount: amt, Note: '' })
-                  });
-                  const data = await res.json();
-                  if (!res.ok || data.error) {
-                    setError(data.error || 'Transfer failed');
-                  } else {
-                    setSuccess('Transfer sent');
-                    setTransferTo('');
-                    setTransferAmount('');
-                  }
-                } catch {
-                  setError('Transfer failed');
-                } finally {
-                  setSendingTransfer(false);
-                }
-              }}
-              style={{ pointerEvents: sendingTransfer ? 'none' : 'auto' }}
-            >
-              <span className={styles.buttonText}>{sendingTransfer ? 'Sending...' : 'Send'}</span>
-            </div>
-            {error && <div className={styles.errorText}>{error}</div>}
-            {success && <div className={styles.successText}>{success}</div>}
-          </div>
-        );
-      case 'Blocking':
-        return (
-          <div className={styles.viewContent}>
-            <div className={styles.backButtonAbs} onClick={onBackPress}>
-              <ChevronLeft size={24} color="#9ca3af" />
-            </div>
-            <div className={styles.pageHeader}>Blocking</div>
-            <input
-              className={styles.input}
-              type="text"
-              placeholder="Enter username to block"
-              value={blockInput}
-              onChange={(e) => setBlockInput(e.target.value)}
-            />
-            <div className={styles.addButton} onClick={handleBlockUser}>
-              <span className={styles.buttonText}>Block</span>
-            </div>
-            <div className={styles.headerText} style={{ fontSize: '18px', marginTop: '15px' }}>Blocked Users</div>
-            {blockedUsers.map((u) => (
-              <div key={u} className={styles.friendItem}>
-                <img src={`https://avatars.rotur.dev/${u}`} alt={u} className={styles.friendAvatar} />
-                <div className={styles.friendName} style={{ flex: 1 }}>{u}</div>
-                <div className={styles.marriageActionButton + ' ' + styles.marriageActionButtonSecondary} onClick={() => handleUnblockUser(u)}>
-                  Unblock
+                  ))}
                 </div>
+              )}
+
+              <div style={{ width: '100%', marginTop: '20px' }}>
+                <div className={styles.headerText} style={{ fontSize: '18px' }}>Friends</div>
+                {friends
+                  .filter(f => f.toLowerCase().includes(friendsQuery.trim().toLowerCase()))
+                  .sort((a, b) => a.localeCompare(b))
+                  .map((f) => (
+                    <div key={f} className={styles.friendItem}>
+                      <img src={`https://avatars.rotur.dev/${f}`} alt={f} className={styles.friendAvatar} />
+                      <div className={styles.friendName} style={{ flex: 1 }}>{f}</div>
+                      <div className={styles.marriageActionButton + ' ' + styles.marriageActionButtonDanger} onClick={() => handleRemoveFriend(f)}>
+                        <X size={14} /> Remove
+                      </div>
+                    </div>
+                  ))}
+                {friends.length === 0 && (
+                  <div className={styles.infoText}>No friends yet</div>
+                )}
               </div>
-            ))}
-            {error && <div className={styles.errorText}>{error}</div>}
-            {success && <div className={styles.successText}>{success}</div>}
-          </div>
-        );
-      default:
-        return (
-          <div className={styles.viewContent}>
-            <div className={styles.backButtonAbs} onClick={onBackPress}>
-              <ChevronLeft size={24} color="#9ca3af" />
+
+              <div className={styles.addButton} onClick={() => setPage('Blocking')} style={{ marginTop: '10px', width: '100%' }}>
+                <span className={styles.buttonText}>Manage Blocking</span>
+              </div>
+            </div>
+          );
+        case 'Transfer':
+          return (
+            <div className={styles.viewContent}>
+              <div className={styles.backButtonAbs} onClick={onBackPress}>
+                <ChevronLeft size={24} color="#9ca3af" />
+              </div>
+              <div className={styles.pageHeader}>Transfer</div>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Enter Rotur username"
+                value={transferTo}
+                onChange={(e) => setTransferTo(e.target.value)}
+              />
+              <input
+                className={styles.input}
+                type="number"
+                placeholder="Amount (credits)"
+                value={transferAmount}
+                onChange={(e) => setTransferAmount(e.target.value)}
+                min={0.01}
+                step={0.01}
+              />
+              <div className={styles.infoText}>Rotur charges a 1 credit tax per transaction</div>
+              <div
+                className={styles.addButton}
+                onClick={async () => {
+                  if (sendingTransfer) return;
+                  const to = transferTo.trim();
+                  const amt = parseFloat(transferAmount);
+                  if (!to) {
+                    setError('Recipient username is required');
+                    return;
+                  }
+                  if (to.toLowerCase() === (user?.username || '').toLowerCase()) {
+                    setError('Cannot send to yourself');
+                    return;
+                  }
+                  if (isNaN(amt) || amt < 0.01) {
+                    setError('Amount must be at least 0.01');
+                    return;
+                  }
+                  setError('');
+                  setSuccess('');
+                  setSendingTransfer(true);
+                  try {
+                    const res = await fetch(`https://api.rotur.dev/me/transfer?auth=${token}`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ To: to, Amount: amt, Note: '' })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || data.error) {
+                      setError(data.error || 'Transfer failed');
+                    } else {
+                      setSuccess('Transfer sent');
+                      setTransferTo('');
+                      setTransferAmount('');
+                    }
+                  } catch {
+                    setError('Transfer failed');
+                  } finally {
+                    setSendingTransfer(false);
+                  }
+                }}
+                style={{ pointerEvents: sendingTransfer ? 'none' : 'auto' }}
+              >
+                <span className={styles.buttonText}>{sendingTransfer ? 'Sending...' : 'Send'}</span>
+              </div>
+              {error && <div className={styles.errorText}>{error}</div>}
+              {success && <div className={styles.successText}>{success}</div>}
+            </div>
+          );
+        case 'Blocking':
+          return (
+            <div className={styles.viewContent}>
+              <div className={styles.backButtonAbs} onClick={onBackPress}>
+                <ChevronLeft size={24} color="#9ca3af" />
+              </div>
+              <div className={styles.pageHeader}>Blocking</div>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Enter username to block"
+                value={blockInput}
+                onChange={(e) => setBlockInput(e.target.value)}
+              />
+              <div className={styles.addButton} onClick={handleBlockUser}>
+                <span className={styles.buttonText}>Block</span>
+              </div>
+              <div className={styles.headerText} style={{ fontSize: '18px', marginTop: '15px' }}>Blocked Users</div>
+              {blockedUsers.map((u) => (
+                <div key={u} className={styles.friendItem}>
+                  <img src={`https://avatars.rotur.dev/${u}`} alt={u} className={styles.friendAvatar} />
+                  <div className={styles.friendName} style={{ flex: 1 }}>{u}</div>
+                  <div className={styles.marriageActionButton + ' ' + styles.marriageActionButtonSecondary} onClick={() => handleUnblockUser(u)}>
+                    Unblock
+                  </div>
+                </div>
+              ))}
+              {error && <div className={styles.errorText}>{error}</div>}
+              {success && <div className={styles.successText}>{success}</div>}
+            </div>
+          );
+        default:
+          return (
+            <div className={styles.viewContent}>
+              <div className={styles.backButtonAbs} onClick={onBackPress}>
+                <ChevronLeft size={24} color="#9ca3af" />
               </div>
               <div className={styles.pageHeader}>{page}</div>
             </div>
           );
-    }
+      }
     }
 
     switch (activeTab) {
@@ -1264,86 +1246,103 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
               <LogOut size={24} color="#9ca3af" />
             </div>
             <div className={styles.contentWidth}>
-            <div className={styles.profileContainer}>
-              <img
-                src={`https://avatars.rotur.dev/${username}`}
-                alt={username}
-                className={styles.profileImage}
-              />
-              <div className={styles.profileName}>{username}</div>
-            </div>
-
-            <div className={styles.metricsGrid}>
-              <div className={styles.metricCard}>
-                <div className={styles.metricTitle}><Coins size={16} color="#9ca3af" /> Credits</div>
-                <div className={styles.metricRow}>
-                  <div className={styles.metricValue}>{user?.["sys.currency"] ?? 0}</div>
-                  {balanceDeltaWeek !== 0 && (
-                    <div className={balanceDeltaWeek > 0 ? styles.metricDeltaUp : styles.metricDeltaDown}>
-                      {balanceDeltaWeek > 0 ? (
-                        <ArrowUpCircle size={16} color="#4ade80" />
-                      ) : (
-                        <ArrowDownCircle size={16} color="#ef4444" />
-                      )}
-                      <span>{(balanceDeltaWeek > 0 ? '+' : '') + balanceDeltaWeek.toFixed(2)}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.metricCard}>
-                <div className={styles.metricTitle}><Users size={16} color="#9ca3af" /> Followers</div>
-                <div className={styles.metricValue}>{followersCount}</div>
-              </div>
-
-              <div className={styles.metricCard}>
-                <div className={styles.metricTitle}><Handshake size={16} color="#9ca3af" /> Friends</div>
-                <div className={styles.metricValue}>{friends.length}</div>
-              </div>
-            </div>
-
-            <div className={styles.homePageContainer}>
-              <div className={styles.bioContainer}>
-                <textarea
-                  className={styles.bioInput}
-                  placeholder="Add a bio..."
-                  value={newBio}
-                  onChange={(e) => {
-                    setNewBio(e.target.value);
-                    setError('');
-                    setSuccess('');
-                  }}
-                  maxLength={150}
+              <div className={styles.profileContainer}>
+                <img
+                  src={`https://avatars.rotur.dev/${username}`}
+                  alt={username}
+                  className={styles.profileImage}
                 />
-                <div className={styles.bioFooter}>
-                  <span className={styles.charCount}>{newBio.length}/150</span>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <div
-                      className={`${styles.postButton} ${(!newBio.trim() || newBio === bio || updating) ? styles.postButtonDisabled : ''}`}
-                      onClick={handleBioUpdate}
-                      style={{ pointerEvents: (!newBio.trim() || newBio === bio || updating) ? 'none' : 'auto' }}
-                    >
-                      {updating ? 'Saving...' : 'Save Bio'}
+                <div className={styles.profileName}>{username}</div>
+              </div>
+
+              {/* Recent Engagement */}
+              {(() => {
+                const mine = posts.filter(p => (p.user || '').toLowerCase() === (username || '').toLowerCase());
+                const latest = [...mine].sort((a, b) => b.timestamp - a.timestamp);
+                const likeCount = latest.reduce((acc, cur) => acc + (cur.likes?.length || 0), 0);
+                const replyCount = latest.reduce((acc, cur) => acc + (cur.replies?.length || 0), 0);
+                return (
+                  <div className={styles.metricsGrid}>
+                    <div className={styles.metricCard}>
+                      <div className={styles.metricTitle}><Coins size={16} color="#9ca3af" /> Credits</div>
+                      <div className={styles.metricRow}>
+                        <div className={styles.metricValue}>{user?.["sys.currency"] ?? 0}</div>
+                        {balanceDeltaWeek !== 0 && (
+                          <div className={balanceDeltaWeek > 0 ? styles.metricDeltaUp : styles.metricDeltaDown}>
+                            {balanceDeltaWeek > 0 ? (
+                              <ArrowUpCircle size={16} color="#4ade80" />
+                            ) : (
+                              <ArrowDownCircle size={16} color="#ef4444" />
+                            )}
+                            <span>{(balanceDeltaWeek > 0 ? '+' : '') + balanceDeltaWeek.toFixed(2)}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div
-                      className={`${styles.marriageActionButton} ${styles.marriageActionButtonSecondary}`}
-                      onClick={() => setNewBio(bio || '')}
-                    >
-                      Cancel
+
+                    <div className={styles.metricCard}>
+                      <div className={styles.metricTitle}><Users size={16} color="#9ca3af" /> Followers</div>
+                      <div className={styles.metricValue}>{followersCount}</div>
+                    </div>
+
+                    <div className={styles.metricCard}>
+                      <div className={styles.metricTitle}><Handshake size={16} color="#9ca3af" /> Friends</div>
+                      <div className={styles.metricValue}>{friends.length}</div>
+                    </div>
+                    <div className={styles.metricCard}>
+                      <div className={styles.metricTitle}><Heart size={16} color="#9ca3af" /> Recent Likes</div>
+                      <div className={styles.metricValue}>{likeCount}</div>
+                    </div>
+                    <div className={styles.metricCard}>
+                      <div className={styles.metricTitle}><MessageSquare size={16} color="#9ca3af" /> Recent Replies</div>
+                      <div className={styles.metricValue}>{replyCount}</div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <div className={styles.homePageContainer}>
+                <div className={styles.bioContainer}>
+                  <textarea
+                    className={styles.bioInput}
+                    placeholder="Add a bio..."
+                    value={newBio}
+                    onChange={(e) => {
+                      setNewBio(e.target.value);
+                      setError('');
+                      setSuccess('');
+                    }}
+                    maxLength={150}
+                  />
+                  <div className={styles.bioFooter}>
+                    <span className={styles.charCount}>{newBio.length}/150</span>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <div
+                        className={`${styles.postButton} ${(!newBio.trim() || newBio === bio || updating) ? styles.postButtonDisabled : ''}`}
+                        onClick={handleBioUpdate}
+                        style={{ pointerEvents: (!newBio.trim() || newBio === bio || updating) ? 'none' : 'auto' }}
+                      >
+                        {updating ? 'Saving...' : 'Save Bio'}
+                      </div>
+                      <div
+                        className={`${styles.marriageActionButton} ${styles.marriageActionButtonSecondary}`}
+                        onClick={() => setNewBio(bio || '')}
+                      >
+                        Cancel
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div style={{ marginTop: '15px' }}>
-                <div className={styles.addButton} onClick={handlePrivacyToggle}>
-                  <span className={styles.buttonText}>{user?.private ? 'Set Public' : 'Set Private'}</span>
+                <div style={{ marginTop: '15px' }}>
+                  <div className={styles.addButton} onClick={handlePrivacyToggle}>
+                    <span className={styles.buttonText}>{user?.private ? 'Set Public' : 'Set Private'}</span>
+                  </div>
                 </div>
-              </div>
-              <div style={{ marginTop: '15px' }}>
-                <div className={styles.addButton} onClick={() => setStatusModalOpen(true)}>
-                  <span className={styles.buttonText}>Edit Status</span>
+                <div style={{ marginTop: '15px' }}>
+                  <div className={styles.addButton} onClick={() => setStatusModalOpen(true)}>
+                    <span className={styles.buttonText}>Edit Status</span>
+                  </div>
                 </div>
-              </div>
               </div>
             </div>
             {statusModalOpen && (
@@ -1419,7 +1418,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
                   ))}
                 </div>
               )}
-              
+
               {/* Marriage Display */}
               {marriage && (
                 <div className={styles.marriageCard}>
@@ -1555,45 +1554,27 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
               {/* Friends List */}
               {friendsView === 'friends' ? (
                 friends.length > 0 ? (
-                <div className={styles.friendsList}>
-                  {friends
-                    .filter((f: string) => f.toLowerCase().includes(friendsQuery.trim().toLowerCase()))
-                    .sort((a: string, b: string) => a.localeCompare(b))
-                    .map((friend: string) => (
-                    <div
-                      key={friend}
-                      className={styles.friendItem}
-                      onClick={() => {
-                        setViewingProfile(friend);
-                      }}
-                    >
-                      <img
-                        src={`https://avatars.rotur.dev/${friend}`}
-                        alt={friend}
-                        className={styles.friendAvatar}
-                      />
-                      <div className={styles.friendName}>{friend}</div>
-                      <div className={styles.friendActions}>
-                        {!marriage && (
-                          <div
-                            className={`${styles.marriageActionButton} ${styles.marriageActionButtonPrimary}`}
-                            onClick={(e) => { e.stopPropagation(); handleProposeMarriage(friend); }}
-                          >
-                            <Heart size={14} />
-                            Propose
-                          </div>
-                        )}
+                  <div className={styles.friendsList}>
+                    {friends
+                      .filter((f: string) => f.toLowerCase().includes(friendsQuery.trim().toLowerCase()))
+                      .sort((a: string, b: string) => a.localeCompare(b))
+                      .map((friend: string) => (
                         <div
-                          className={`${styles.marriageActionButton} ${styles.marriageActionButtonDanger}`}
-                          onClick={(e) => { e.stopPropagation(); handleRemoveFriend(friend); }}
+                          key={friend}
+                          className={styles.friendItem}
+                          onClick={() => {
+                            setViewingProfile(friend);
+                          }}
                         >
-                          <X size={14} />
-                          Remove
+                          <img
+                            src={`https://avatars.rotur.dev/${friend}`}
+                            alt={friend}
+                            className={styles.friendAvatar}
+                          />
+                          <div className={styles.friendName}>{friend}</div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      ))}
+                  </div>
                 ) : (
                   <div className={styles.infoText}>No friends yet</div>
                 )
@@ -1767,12 +1748,14 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
         return (
           <div className={styles.feedContainer}>
             <div className={styles.feedMainContent}>
-              <ClawSidebar
-                currentView={clawView}
-                onViewChange={setClawView}
-                username={username}
-                onProfilePress={handleLoadProfile}
-              />
+              {!isWide && (
+                <ClawSidebar
+                  currentView={clawView}
+                  onViewChange={setClawView}
+                  username={username}
+                  onProfilePress={handleLoadProfile}
+                />
+              )}
 
               <div className={styles.feedContentArea}>
                 <div className={styles.feedHeaderText}>
@@ -1846,6 +1829,15 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
                 )}
               </div>
             </div>
+            {isWide && (
+              <ClawSidebar
+                currentView={clawView}
+                onViewChange={setClawView}
+                username={username}
+                onProfilePress={handleLoadProfile}
+                orientation="horizontal"
+              />
+            )}
           </div>
         );
       case 'Wallet': {
@@ -2004,22 +1996,29 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
     }
   };
 
+  const { isWide } = useViewport();
+
+  if (isWide) {
+    return (
+      <div className={`${styles.mainContainer} ${styles.desktopLayout}`}>
+        <Sidebar activeTab={activeTab} onChange={changeTab} />
+        <div className={styles.desktopContent}>{renderContent()}</div>
+        {imageOverlay !== '' && (
+          <div className={styles.imageOverlay} onClick={() => setImageOverlay('')}>
+            <img src={imageOverlay} alt="Overlay" className={styles.imageOverlayContent} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.contentContainer}>{renderContent()}</div>
       <TabBar activeTab={activeTab} setActiveTab={changeTab} />
-
-      {/* Image Overlay Modal */}
       {imageOverlay !== '' && (
-        <div
-          className={styles.imageOverlay}
-          onClick={() => setImageOverlay('')}
-        >
-          <img
-            src={imageOverlay}
-            alt="Overlay"
-            className={styles.imageOverlayContent}
-          />
+        <div className={styles.imageOverlay} onClick={() => setImageOverlay('')}>
+          <img src={imageOverlay} alt="Overlay" className={styles.imageOverlayContent} />
         </div>
       )}
     </div>

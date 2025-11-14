@@ -151,7 +151,7 @@ interface ProfilePageData {
   pfp?: string;
   private?: boolean;
   pronouns?: string;
-  status?: string | null;
+  status?: { type?: string; content?: string; created?: number; expires?: number } | string | null;
   subscription?: string;
   system?: string;
   theme?: Theme;
@@ -458,7 +458,7 @@ const ProfilePage: FC<ProfilePageProps> = ({
         {profile.status && (
           <div className={styles.statusSection}>
             <div className={styles.statusLabel}>Status</div>
-            <div className={styles.statusText}>{profile.status}</div>
+            <div className={styles.statusText}>{typeof profile.status === 'string' ? profile.status : (profile.status?.content || '')}</div>
           </div>
         )}
 
