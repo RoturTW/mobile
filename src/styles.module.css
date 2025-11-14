@@ -343,6 +343,23 @@
   border-top: 3px solid var(--primary);
 }
 
+.clawTabsRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background-color: var(--bg);
+  z-index: 50;
+}
+
+.clawInlineActive {
+  border-bottom: 2px solid var(--primary);
+}
+
 .roturIcon {
   font-size: 20px;
   font-weight: bold;

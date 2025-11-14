@@ -283,11 +283,16 @@ interface ClawSidebarProps {
   username: string;
   onProfilePress: (username: string) => void;
   orientation?: 'vertical' | 'horizontal';
+  placement?: 'bottom' | 'inline';
 }
 
-const ClawSidebar: FC<ClawSidebarProps> = ({ currentView, onViewChange, orientation = 'vertical' }) => {
-  const wrapperClass = orientation === 'horizontal' ? styles.clawBottomBar : styles.clawSidebar;
-  const activeClass = orientation === 'horizontal' ? styles.clawBottomActive : styles.sidebarButtonActive;
+const ClawSidebar: FC<ClawSidebarProps> = ({ currentView, onViewChange, orientation = 'vertical', placement = 'bottom' }) => {
+  const wrapperClass = orientation === 'horizontal'
+    ? (placement === 'inline' ? styles.clawTabsRow : styles.clawBottomBar)
+    : styles.clawSidebar;
+  const activeClass = orientation === 'horizontal'
+    ? (placement === 'inline' ? styles.clawInlineActive : styles.clawBottomActive)
+    : styles.sidebarButtonActive;
   return (
     <div className={wrapperClass}>
       <div
@@ -1751,16 +1756,17 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
         return (
           <div className={styles.feedContainer}>
             <div className={styles.feedMainContent}>
-              {!isWide && (
-                <ClawSidebar
-                  currentView={clawView}
-                  onViewChange={setClawView}
-                  username={username}
-                  onProfilePress={handleLoadProfile}
-                />
-              )}
-
               <div className={styles.feedContentArea}>
+                {!isWide && (
+                  <ClawSidebar
+                    currentView={clawView}
+                    onViewChange={setClawView}
+                    username={username}
+                    onProfilePress={handleLoadProfile}
+                    orientation="horizontal"
+                    placement="inline"
+                  />
+                )}
                 <div className={styles.feedHeaderText}>
                   {clawView === 'feed' && 'Claw Feed'}
                   {clawView === 'following' && 'Following'}
