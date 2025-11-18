@@ -1428,7 +1428,7 @@ const MainApp: FC<MainAppProps> = ({ userState, onLogout, onFriendsPress, pageSt
               )}
 
               {/* Marriage Display */}
-              {marriage && (
+              {marriage && marriage.status === 'married' && (
                 <div className={styles.marriageCard}>
                   <div className={styles.marriageCardHeader}>
                     <div className={styles.marriageAvatars}>
